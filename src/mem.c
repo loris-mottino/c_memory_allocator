@@ -25,6 +25,7 @@
 struct allocator_header {
         size_t memory_size;
 	mem_fit_function_t *fit;
+	struct fb *list;
 };
 
 /* La seule variable globale autorisée
@@ -51,20 +52,25 @@ static inline size_t get_system_memory_size() {
 struct fb {
 	size_t size;
 	struct fb* next;
-	/* ... */
 };
 
 
 void mem_init(void* mem, size_t taille)
 {
         memory_addr = mem;
-        *(size_t*)memory_addr = taille;
+        *(size_t*)memory_addr = taille;  // get_header() -> memory_size = taille;
 	/* On vérifie qu'on a bien enregistré les infos et qu'on
 	 * sera capable de les récupérer par la suite
 	 */
 	assert(mem == get_system_memory_addr());
 	assert(taille == get_system_memory_size());
-	/* ... */
+	
+	get_header()->list = get_system_memory_addr() + sizeof(struct allocator_header);
+	*(get_header()->list) = (struct fb) {
+		taille - sizeof(struct allocator_header) - sizeof(struct fb),
+		NULL
+	};
+	
 	mem_fit(&mem_fit_first);
 }
 
