@@ -18,9 +18,9 @@ struct fb;
 // Structure de bloc libre (fb_t)
 
 typedef struct fb {
-	size_t size; // Stocke la taille utilisable du bloc
-	struct fb *next; // Pointeur vers le prochain bloc libre
-} fb_t;
+	size_t taille; // Stocke la taille utilisable du bloc
+	struct fb *prochain; // Pointeur vers le prochain bloc libre
+} bloc_libre;
 
 /* NOTA BENE : Un bloc occupé ne possède pas structure, car son adresse est retenue par l'utilisateur.
  * Néanmoins, il possède une taille stockée 64 bits avant le pointeur vers la mémoire de ce bloc.
