@@ -28,6 +28,19 @@ typedef struct fb {
 
 
 
+// Déclaration du pointeur qui stocke toute la mémoire allouée.
+void *memoire;
+
+
+
+/* 
+ * 
+ * 
+ * 
+ */
+
+
+
 int main() {
   return 0;
 }
