@@ -88,20 +88,36 @@ void mem_show(void (*print)(void *, size_t, int)) {
 		} else
 			current += sizeof(size_t) + size;
 	}
-	
-//	/* ... */
-//	while (/* ... */ 0) {
-//		/* ... */
-//		print(/* ... */NULL, /* ... */0, /* ... */0);
-//		/* ... */
-//	}
 }
 
 void mem_fit(mem_fit_function_t *f) {
 	get_header()->fit = f;
 }
 
+/* PROBLEME CONCERNANT LA TAILLE DES ZONES LIBRES :
+ * Une zone libre possède une taille, mais ne faudrait-il pas mentir sur cette taille ?
+ * En effet, une zone libre possède des métadonnées plus importantes qu'une zone occupée
+ * Donc, lorsque l'on transforme une zone libre en occupée, on réduira la taille des métadonnées de cette dernière
+ * Ce qui veut dire que la nouvelle zone occupée pourra contenir un peu plus de données que la taille annoncée par la zone libre
+ * Ce surplus de mémoire vaut exactement : memory_gap = sizeof(struct fb) - sizeof(size_t)
+ *
+ * Donc une solution pour gagner un peu de place (et surtout ne pas gaspiller memory_gap) serait d'ajouter ce memory_gap à la taille initiale de la zone libre
+ * Mais cela complexifiera la tâche consistant à trouver la zone située après une zone libre, puisqu'il faudra retrancher memory_gap à chaque fois
+ *
+ * Ou alors on peut décider d'accepter à ce que l'utilisateur demande l'allocation d'une zone légèrement plus grande que la taille de la zone libre,
+ * tant que ce dépassement n'est pas supérieur à memory_gap
+ */
+
 void *mem_alloc(size_t taille) {
+	/* INSTRUCTIONS :
+	 * L'appel de fit(get_header()->list, taille) (ligne 105) va retourner une zone libre selon la stratégie utilisée, que l'on stockera dans *fb
+	 * On redéfinira fb->size = taille puis on créera une zone libre *after à l'adresse sizeof(struct fb) + taille, si 
+	 * Cependant, il faut avoir la zone libre se trouvant avant *fb, notée *before, car il faudra redéfinir before->next = fb->next
+	 * Ensuite, il faudra modifier le size_t taille de *fb et créer une zone libre *after juste après,
+	 * s'il reste assez de place pour stocker les métadonnées de cette nouvelle zone, et un minimum de place
+	 * Finalement, on retournera le pointeur vers la zone mémoire de l'utilisateur, c'est à dire (void*)(fb + sizeof(size_t))
+	 */
+	
 	/* ... */
 	__attribute__((unused)) /* juste pour que gcc compile ce squelette avec -Werror */
 	struct fb *fb=get_header()->fit(/*...*/NULL, /*...*/0);
