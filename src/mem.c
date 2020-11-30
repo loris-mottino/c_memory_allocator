@@ -75,12 +75,26 @@ void mem_init(void* mem, size_t taille)
 }
 
 void mem_show(void (*print)(void *, size_t, int)) {
-	/* ... */
-	while (/* ... */ 0) {
-		/* ... */
-		print(/* ... */NULL, /* ... */0, /* ... */0);
-		/* ... */
+	void *current = get_system_memory_addr();
+	struct fb *free_block = get_header()->list;
+	
+	while (current < get_system_memory_addr() + sizeof(struct allocator_header) + get_system_memory_size()) {
+		int is_free = current == (void*)free_block ? 1 : 0; // Is current block free ?
+		size_t size = *(size_t*)current; // Size of current block
+		print(current, size, is_free); // Prints current block with its address, size, and state (free/occuped)
+		if (is_free == 1) {
+			free_block = free_block->next;
+			current += sizeof(struct fb) + size;
+		} else
+			current += sizeof(size_t) + size;
 	}
+	
+//	/* ... */
+//	while (/* ... */ 0) {
+//		/* ... */
+//		print(/* ... */NULL, /* ... */0, /* ... */0);
+//		/* ... */
+//	}
 }
 
 void mem_fit(mem_fit_function_t *f) {
