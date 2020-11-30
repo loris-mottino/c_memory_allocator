@@ -111,6 +111,38 @@ void *mem_alloc(size_t taille) {
 
 
 void mem_free(void* mem) {
+	// Defines free blocks before and after given occuped block (mem), and initializes a free block for mem
+	struct fb *before = NULL,
+		  *current = (struct fb*)(mem - sizeof(size_t)),	  
+		  *after = get_header()->list;
+	
+	// Retrieves blocks before and after current block that are free
+	while (after != NULL && after < current) {
+		before = after;
+		after = after->next;
+	}
+	
+	// Switches mem to a free block
+	*current = (struct fb) {
+		mem_get_size(mem) + sizeof(size_t) - sizeof(struct fb),
+		after
+	};
+	
+	// Defines states of blocks before and after current block
+	int before_is_free = before != NULL && current == before + sizeof(struct fb) + before->size ? 1 : 0,
+	    after_is_free = after != NULL && after == current + sizeof(struct fb) + current->size ? 1 : 0;
+	
+	// If block after is free, reassembles current block and block after
+	if (after_is_free) {
+		current->size += sizeof(struct fb) + after->size;
+		current->next = after->next;
+	}
+	
+	// If block before is free, reassembles current block and block before
+	if (before_is_free) {
+		before->size += sizeof(struct fb) + current->size;
+		before->next = current->next;
+	}
 }
 
 
