@@ -160,6 +160,7 @@ void mem_fit(mem_fit_function_t *f) {
  * Donc, lorsque l'on transforme une zone libre en occupée, on réduira la taille des métadonnées de cette dernière
  * Ce qui veut dire que la nouvelle zone occupée pourra contenir un peu plus de données que la taille annoncée par la zone libre
  * Ce surplus de mémoire vaut exactement : memory_gap = sizeof(struct fb) - sizeof(size_t)
+ * Il est accessible depuis la fonction get_metadata_size_gap()
  *
  * Donc une solution pour gagner un peu de place (et surtout ne pas gaspiller memory_gap) serait d'ajouter ce memory_gap à la taille initiale de la zone libre
  * Mais cela complexifiera la tâche consistant à trouver la zone située après une zone libre, puisqu'il faudra retrancher memory_gap à chaque fois
@@ -170,11 +171,11 @@ void mem_fit(mem_fit_function_t *f) {
 
 void *mem_alloc(size_t taille) {
 	/* INSTRUCTIONS :
-	 * L'appel de fit(get_header()->list, taille) (ligne 105) va retourner une zone libre selon la stratégie utilisée, que l'on stockera dans *fb
+	 * L'appel de get_header()->fit(get_header()->list, taille) (ligne 184) va retourner une zone libre selon la stratégie utilisée, que l'on stockera dans *fb
 	 * On redéfinira fb->size = taille puis on créera une zone libre *after à l'adresse sizeof(struct fb) + taille, si 
 	 * Cependant, il faut avoir la zone libre se trouvant avant *fb, notée *before, car il faudra redéfinir before->next = fb->next
 	 * Ensuite, il faudra modifier le size_t taille de *fb et créer une zone libre *after juste après,
-	 * s'il reste assez de place pour stocker les métadonnées de cette nouvelle zone, et un minimum de place
+	 * s'il reste assez de place pour stocker les métadonnées de cette nouvelle zone, et un minimum de place supplémentaire
 	 * Finalement, on retournera le pointeur vers la zone mémoire de l'utilisateur, c'est à dire (void*)(fb + sizeof(size_t))
 	 */
 	
