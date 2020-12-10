@@ -56,19 +56,9 @@ static inline size_t get_system_memory_size() {
 	return get_header()->memory_size;
 }
 
-/* Retourne la différence entre la taille des métadonnées d'un bloc libre et celle d'un bloc occupé.
- * En effet, un bloc libre possède des métadonnées plus importantes qu'un bloc occupé, et cette différence
- * de taille peut être utilisée pour allouer un peu plus de mémoire lors d'un mem_alloc().
- */
-static inline size_t get_metadata_size_gap() {
-	return sizeof(struct fb) - sizeof(size_t);
-}
-
 
 /* Structure représentant un bloc libre.
  * Un bloc libre a une taille allouable (size) et un pointeur vers le prochain bloc libre.
- * Notons que la taille réelle allouable d'un bloc libre est légèrement supérieure à la valeur size,
- * en raison de l'écart entre la taille des métadonnées des blocs libres à celle des blocs occupés.
  */
 struct fb {
 	size_t size;
@@ -100,7 +90,7 @@ void mem_init(void* mem, size_t taille) {
 	get_header()->list = get_system_memory_addr() + sizeof(struct allocator_header);
 	// On crée une structure de bloc libre à cette adresse, de taille maximale afin de remplir tout l'espace demandé par l'utilisateur.
 	*(get_header()->list) = (struct fb) {
-		taille - sizeof(struct allocator_header) - sizeof(struct fb),
+		taille - sizeof(struct allocator_header),
 		NULL
 	};
 	
@@ -134,18 +124,12 @@ void mem_show(void (*print)(void *, size_t, int)) {
 		
 		// Condition permettant d'atteindre le bloc suivant, avant d'effectuer un tour de boucle.
 		
-		/* Si le bloc actuel est libre, on renseigne dans free_block le prochain bloc libre,
-		 * et on fait pointer current vers le prochain bloc, en lui ajoutant la taille
-		 * du bloc actuel ainsi que la taille des métadonnées d'une structure de bloc libre.
-		 */
-		if (is_free == 1) {
+		// Si le bloc actuel est libre, on renseigne dans free_block le prochain bloc libre.
+		if (is_free == 1)
 			free_block = free_block->next;
-			current += sizeof(struct fb) + size;
-		/* Sinon, on fait pointer current vers le prochain bloc, en lui ajoutant la
-		 * taille du bloc actuel ainsi que la taille des métadonnées d'un bloc occupé.
-		 */
-		} else
-			current += sizeof(size_t) + size;
+		
+		// Finalement, on fait pointer current vers le prochain bloc, en lui ajoutant la taille du bloc actuel.
+		current += size;
 	}
 }
 
@@ -154,7 +138,7 @@ void mem_fit(mem_fit_function_t *f) {
 	get_header()->fit = f;
 }
 
-/* PROBLEME CONCERNANT LA TAILLE DES ZONES LIBRES :
+/* PROBLEME CONCERNANT LA TAILLE DES ZONES LIBRES : RESOLU
  * Une zone libre possède une taille, mais ne faudrait-il pas mentir sur cette taille ?
  * En effet, une zone libre possède des métadonnées plus importantes qu'une zone occupée
  * Donc, lorsque l'on transforme une zone libre en occupée, on réduira la taille des métadonnées de cette dernière
@@ -171,7 +155,7 @@ void mem_fit(mem_fit_function_t *f) {
 
 void *mem_alloc(size_t taille) {
 	/* INSTRUCTIONS :
-	 * L'appel de get_header()->fit(get_header()->list, taille) (ligne 184) va retourner une zone libre selon la stratégie utilisée, que l'on stockera dans *fb
+	 * L'appel de get_header()->fit(get_header()->list, taille) (ligne 168) va retourner une zone libre selon la stratégie utilisée, que l'on stockera dans *fb
 	 * On redéfinira fb->size = taille puis on créera une zone libre *after à l'adresse sizeof(struct fb) + taille, si 
 	 * Cependant, il faut avoir la zone libre se trouvant avant *fb, notée *before, car il faudra redéfinir before->next = fb->next
 	 * Ensuite, il faudra modifier le size_t taille de *fb et créer une zone libre *after juste après,
@@ -209,7 +193,7 @@ void mem_free(void* mem) {
 	 * en fonction de l'écart de taille entre les métadonnées des blocs libres et celles des blocs occupés.
 	 */
 	*current = (struct fb) {
-		mem_get_size(mem) - get_metadata_size_gap(),
+		mem_get_size(mem),
 		after
 	};
 	
@@ -217,18 +201,18 @@ void mem_free(void* mem) {
 	 * Attention : les pointeurs before et after ne correspondent pas forcément à blocs cités ci-dessus,
 	 * mais aux blocs LIBRES les plus proches du bloc actuel, respectivement avant et après ce dernier.
 	 */
-	int before_is_free = before != NULL && current == before + sizeof(struct fb) + before->size ? 1 : 0,
-	    after_is_free = after != NULL && after == current + sizeof(struct fb) + current->size ? 1 : 0;
+	int before_is_free = before != NULL && current == before + before->size ? 1 : 0,
+	    after_is_free = after != NULL && after == current + current->size ? 1 : 0;
 	
 	// Si le bloc se situant juste après le bloc actuel est libre, on le fusionne avec le bloc actuel.
 	if (after_is_free) {
-		current->size += sizeof(struct fb) + after->size;
+		current->size += after->size;
 		current->next = after->next;
 	}
 	
 	// Si le bloc se situant juste avant le bloc actuel est libre, on le fusionne avec le bloc actuel.
 	if (before_is_free) {
-		before->size += sizeof(struct fb) + current->size;
+		before->size += current->size;
 		before->next = current->next;
 	/* Sinon, on doit quand même redéfinir le bloc libre suivant le précédent
 	 * bloc libre par notre bloc actuel, pour garantir le chaînage des blocs.
