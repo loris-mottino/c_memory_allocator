@@ -205,13 +205,13 @@ void mem_free(void* mem) {
 	    after_is_free = after != NULL && after == current + current->size ? 1 : 0;
 	
 	// Si le bloc se situant juste après le bloc actuel est libre, on le fusionne avec le bloc actuel.
-	if (after_is_free) {
+	if (after_is_free == 1) {
 		current->size += after->size;
 		current->next = after->next;
 	}
 	
 	// Si le bloc se situant juste avant le bloc actuel est libre, on le fusionne avec le bloc actuel.
-	if (before_is_free) {
+	if (before_is_free == 1) {
 		before->size += current->size;
 		before->next = current->next;
 	/* Sinon, on doit quand même redéfinir le bloc libre suivant le précédent
