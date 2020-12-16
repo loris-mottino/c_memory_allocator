@@ -163,10 +163,14 @@ void *mem_alloc(size_t taille) {
 	 * Finalement, on retournera le pointeur vers la zone mémoire de l'utilisateur, c'est à dire (void*)(fb + sizeof(size_t))
 	 */
 	
-	/* ... */
+	if (taille % ALIGNMENT != 0)
+		return NULL;
+	
 	__attribute__((unused)) /* juste pour que gcc compile ce squelette avec -Werror */
-	struct fb *fb=get_header()->fit(/*...*/NULL, /*...*/0);
-	/* ... */
+	struct fb *fb=get_header()->fit(get_header()->list, taille + sizeof(size_t));
+	
+	/* * */
+	
 	return NULL;
 }
 
