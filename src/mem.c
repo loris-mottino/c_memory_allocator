@@ -222,8 +222,19 @@ void mem_free(void* mem) {
 }
 
 
-// Fonction retournant le premier bloc libre de taille au moins égale à size, en utilisant donc la stratégie mem_fit_first.
+/* Fonction retournant le premier bloc libre de taille au moins égale à size, en utilisant donc la stratégie mem_fit_first.
+ * Pour cela, nous parcourons tous les blocs libres jusqu'à en trouver un de taille supérieure ou égale à la taille demandée par l'utilisateur.
+ */
 struct fb* mem_fit_first(struct fb *list, size_t size) {
+	fb *current = get_header()->list;
+	
+	while (current != NULL) {
+		if (current->size >= size)
+			return current;
+		
+		current = current->next;
+	}
+	
 	return NULL;
 }
 
