@@ -163,15 +163,46 @@ void *mem_alloc(size_t taille) {
 	 * Finalement, on retournera le pointeur vers la zone mémoire de l'utilisateur, c'est à dire (void*)(fb + sizeof(size_t))
 	 */
 	
+	//on vérifie que le bloc occupé aura au moins la taille pour les meta données du bloc libre
+	if ((sizeof(size_t) + taille) < sizeof(struct fb))
+		taille = sizeof(struct fb) - sizeof(size_t);
+	
+	//On vérifie l'alignement pour la taille demandé
 	if (taille % ALIGNMENT != 0)
-		return NULL;
+		taille += (ALIGNMENT - taille % ALIGNMENT);
+	
+	//taille des meta données et bloc utilisateur
+	size_t taille_total = taille +sizeof(size_t);
 	
 	__attribute__((unused)) /* juste pour que gcc compile ce squelette avec -Werror */
-	struct fb *fb=get_header()->fit(get_header()->list, taille + sizeof(size_t));
+	struct fb *fb=get_header()->fit(get_header()->list, taille_total);
 	
-	/* * */
+	//on vérifie qu'on a bien trouvé un bloc disponible
+	if (fb == NULL)
+		return NULL;
 	
-	return NULL;
+	//On cherche le bloc précédent le bloc libre trouvé
+	struct fb *current = get_header()->list;
+	while (current->next != fb)
+		current = current->next;
+	
+	if (taille_total == fb->taille)
+		current -> next = fb -> next;
+	else {
+		//on définit le nouveau bloc libre suivant le bloc à allouer
+		struct fb* after = fb + taille_total;
+		*after = (struct fb){
+			fb -> taille - taille_total,
+			fb -> next
+		};
+		fb -> taille = taille_total;
+
+		current -> next = after;
+	}
+	
+	void* res = (void*)fb + sizeof(size_t);
+	
+	return res;
 }
 
 
