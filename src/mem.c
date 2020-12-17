@@ -12,7 +12,7 @@
 #ifdef __BIGGEST_ALIGNMENT__
 #define ALIGNMENT __BIGGEST_ALIGNMENT__
 #else
-#define ALIGNMENT 16
+#define ALIGNMENT 8
 #endif
 
 /* Structure placée au début de la zone de l'allocateur
