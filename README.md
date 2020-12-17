@@ -1,5 +1,5 @@
 # Projet API : Allocateur mémoire en C
-Réalisé par VERRIER Martin et MOTTINO Loris
+Réalisé par VERRIER Martin, ABECASSIS Thomas et MOTTINO Loris
 
 
 
