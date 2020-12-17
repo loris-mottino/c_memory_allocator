@@ -296,10 +296,36 @@ struct fb* mem_fit_first(struct fb *list, size_t size) {
 
 // Fonction retournant le bloc libre dont la taille est la plus proche de size (et satisfaisant size >= taille), en utilisant donc la stratégie mem_fit_best.
 struct fb* mem_fit_best(struct fb *list, size_t size) {
-	return NULL;
+	struct fb *current = get_header()->list;
+	struct fb *res = mem_fit_first(list,size);
+	
+	if (res == NULL)
+		return NULL;
+	
+	while (current != NULL) {
+		if ((current->size - size >= 0) && (current->size < res->size))
+			res = current;
+		
+		current = current->next;
+	}
+	
+	return res;
 }
 
 // Fonction retournant le bloc libre dont la taille est la plus grande (et satisfaisant size >= taille), en utilisant donc la stratégie mem_fit_worst.
 struct fb* mem_fit_worst(struct fb *list, size_t size) {
-	return NULL;
+	struct fb *current = get_header()->list;
+	struct fb *res = mem_fit_first(list,size);
+	
+	if (res == NULL)
+		return NULL;
+	
+	while (current != NULL) {
+		if (current->size > res->size)
+			res = current;
+		
+		current = current->next;
+	}
+	
+	return res;
 }
