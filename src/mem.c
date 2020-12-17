@@ -65,6 +65,22 @@ struct fb {
 	struct fb* next;
 };
 
+/* Fonction à faire dans un second temps
+ * - utilisée par realloc() dans malloc_stub.c
+ * - nécessaire pour remplacer l'allocateur de la libc
+ * - donc nécessaire pour 'make test_ls'
+ * Lire malloc_stub.c pour comprendre son utilisation
+ * (ou en discuter avec l'enseignant)
+ */
+// Cette fonction retourne la taille d'une zone occupée, en prenant le pointeur vers la zone mémoire de cette zone (et non vers ses métadonnées).
+size_t mem_get_size(void *zone) {
+	/* zone est une adresse qui a été retournée par mem_alloc() */
+
+	/* la valeur retournée doit être la taille maximale que
+	 * l'utilisateur peut utiliser dans cette zone */
+	return *(size_t*) (zone - sizeof(size_t));
+}
+
 
 /* Fonction permettant d'initialiser l'allocateur avec une taille initiale et un pointeur vers la zone à utiliser.
  * Cette zone devra avoir été préalablement allouée par l'utilisateur, et la taille demandée ne peut pas être supérieure
@@ -186,16 +202,16 @@ void *mem_alloc(size_t taille) {
 	while (current->next != fb)
 		current = current->next;
 	
-	if (taille_total == fb->taille)
+	if (taille_total == fb->size)
 		current -> next = fb -> next;
 	else {
 		//on définit le nouveau bloc libre suivant le bloc à allouer
 		struct fb* after = fb + taille_total;
 		*after = (struct fb){
-			fb -> taille - taille_total,
+			fb -> size - taille_total,
 			fb -> next
 		};
-		fb -> taille = taille_total;
+		fb -> size = taille_total;
 
 		current -> next = after;
 	}
@@ -271,22 +287,6 @@ struct fb* mem_fit_first(struct fb *list, size_t size) {
 	}
 	
 	return NULL;
-}
-
-/* Fonction à faire dans un second temps
- * - utilisée par realloc() dans malloc_stub.c
- * - nécessaire pour remplacer l'allocateur de la libc
- * - donc nécessaire pour 'make test_ls'
- * Lire malloc_stub.c pour comprendre son utilisation
- * (ou en discuter avec l'enseignant)
- */
-// Cette fonction retourne la taille d'une zone occupée, en prenant le pointeur vers la zone mémoire de cette zone (et non vers ses métadonnées).
-size_t mem_get_size(void *zone) {
-	/* zone est une adresse qui a été retournée par mem_alloc() */
-
-	/* la valeur retournée doit être la taille maximale que
-	 * l'utilisateur peut utiliser dans cette zone */
-	return *(size_t*) (zone - sizeof(size_t));
 }
 
 
