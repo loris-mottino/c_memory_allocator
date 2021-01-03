@@ -14,7 +14,7 @@ PROGRAMS=memshell $(TESTS)
 
 .PHONY: clean all test_ls
 
-all: $(PROGRAMS)
+all: $(PROGRAMS) main_tests libmalloc.so
 	for file in $(TESTS);do ./$$file; done
 
 %.o: %.c
@@ -32,6 +32,16 @@ libmalloc.so: malloc_stub.o
 test_ls: libmalloc.so
 	LD_PRELOAD=./libmalloc.so ls
 
+main_tests: tests.o mem.o
+	$(CC) $(CFLAGS) -o $@ $^
+
+tests: main_tests
+	@echo
+	@echo
+	@./$<
+	@echo
+	
+
 # nettoyage
 clean:
-	$(RM) *.o $(PROGRAMS) libmalloc.so .*.deps
+	$(RM) *.o $(PROGRAMS) main_tests libmalloc.so .*.deps
