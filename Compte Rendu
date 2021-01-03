@@ -15,8 +15,7 @@ C’est pour cela que nous avons choisis de mettre un size_t taille à chaque d�
 nous permettant de parcourir la totalité des blocs présents en mémoire.
 
 Schéma récapitulatif : 
-[https://www.noelshack.com/2021-53-7-1609680335-chart.png]
-
+![diagramme](https://image.noelshack.com/fichiers/2021/53/7/1609680861-chart.png)
 
 En bleu : zone libre
 En rouge : zone occupée
