@@ -1,0 +1,27 @@
+Compte Rendu TP Allocateur de mémoire
+Mottino & Abecassis & Verrier
+
+Modélisation :
+
+Les structures pour le header de notre zone mémoire ainsi que pour les blocs libres étaient déjà fournis, 
+Ainsi, il nous restait donc à choisir la manière d’implémenter les blocs occupés.
+Grâce à la zone mémoire et aux zones libres nous pouvons déduire quelles zones sont occupées à condition de connaître la taille de chacunes d’entre elles.
+C’est pour cela que nous avons choisis de mettre un size_t taille à chaque début de zone occupées,
+nous permettant de parcourir la totalité des blocs présents en mémoire.
+
+Schéma récapitulatif : 
+
+
+
+En bleu : zone libre
+En rouge : zone occupée
+
+Tests :
+
+
+
+
+
+Extensions :
+
+
