@@ -17,6 +17,7 @@ nous permettant de parcourir la totalité des blocs présents en mémoire.
 Schéma récapitulatif : 
 ![diagramme](https://image.noelshack.com/fichiers/2021/53/7/1609680861-chart.png)
 
+En noir : header
 En bleu : zone libre
 En rouge : zone occupée
 
