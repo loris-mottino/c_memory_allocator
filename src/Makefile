@@ -40,6 +40,7 @@ tests: main_tests
 	@echo
 	@./$<
 	@echo
+	@echo
 	
 
 # nettoyage
