@@ -8,6 +8,8 @@ Ce projet a pour but de créer un allocateur mémoire en utilisant le langage C.
 
 Le code source se trouve dans _src_.
 
+Un compte rendu du travail effectué se trouve dans _Compte Rendu_.
+
 Le fichier __mem.c__ contient le code que nous avons écrit lors de la réalisation de ce projet.
 
 Nous avons également modifié le fichier __Makefile__, assurant la compilation des sources.
