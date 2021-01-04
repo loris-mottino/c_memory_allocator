@@ -25,7 +25,7 @@ nous permettant de parcourir la totalité des blocs présents en mémoire.
 
 Afin de vérifier que notre programme fonctionne, nous avons rédigé des tests.
 Ces tests nous ont permis de mettre en lumière des erreurs dans notre programme et de les corriger.
-Vous pouvez retrouver ces tests dans le fichier test.c qui est commenté, afin d'éxpliquer le but de chaque test.
+Vous pouvez retrouver ces tests dans le fichier _test.c_ qui est commenté, afin d'éxpliquer le but de chaque test.
 
 
 ## Extensions :
