@@ -1,7 +1,7 @@
-Compte Rendu TP Allocateur de mémoire
-Mottino & Abecassis & Verrier
+#Compte Rendu TP Allocateur de mémoire
+#Mottino & Abecassis & Verrier
 
-Modélisation :
+##Modélisation :
 
 Les structures pour le header de notre zone mémoire ainsi que pour les blocs libres étaient déjà fournis. Concernant le header, nous avons décidé de l’implémenter avec 3 données,
 la taille de la zone mémoire total disponible ( size_t memory_size ),
@@ -14,21 +14,21 @@ Grâce à la zone mémoire et aux zones libres nous pouvons déduire quelles zon
 C’est pour cela que nous avons choisis de mettre un size_t taille à chaque début de zone occupées,
 nous permettant de parcourir la totalité des blocs présents en mémoire.
 
-Schéma récapitulatif : 
+###Schéma récapitulatif : 
 ![diagramme](https://image.noelshack.com/fichiers/2021/53/7/1609680861-chart.png)
 
 - En noir : header
 - En bleu : zone libre
 - En rouge : zone occupée
 
-Tests :
+##Tests :
 
 Afin de vérifier que notre programme fonctionne, nous avons rédigé des tests.
 Ces tests nous ont permis de mettre en lumière des erreurs dans notre programme et de les corriger.
 Vous pouvez retrouver ces tests dans le fichier test.c qui est commenté, afin d'éxpliquer le but de chaque test.
 
 
-Extensions :
+##Extensions :
 
 Nous avons choisis de coder deux fonctions de recherche d’espace libre, à allouer, supplémentaires. L’une cherchant une espace libre avec le meilleur ajustement (mem_fit_best) et l’autre avec le moins de résidu (mem_fit_worst).
 Pour l’implémentation de ces deux fonctions, nous avons utilisé le même procédé.
@@ -39,7 +39,7 @@ En premier lieu, nous faisons appel à mem_fit_first, afin de nous assurer qu’
 
 Ces deux nouvelles méthodes de recherches impliquent de parcourir intégralement l’espace mémoire à chaque recherche, ce qui augmente grandement la complexité de l’algorithme et donc son temps d'exécution. Leur intérêt n’est donc pas dans la rapidité d'exécution mais dans l’optimisation de la mémoire.
 
-Cas où mem_fit_best optimise la mémoire :
+###Cas où mem_fit_best optimise la mémoire :
 
 Supposons qu’il ne reste que deux espaces (appelons les A et B) en mémoire , tel que:
 
@@ -61,7 +61,7 @@ Lorsque l’utilisateur nous demande de lui allouer successivement deux blocs m�
 Cependant, si nous utilisons la méthode mem_fit_best alors nous allons B pour 1, et nous pourrons ensuite allouer A pour 2.
 
 
-Cas où mem_fit_worst optimise la mémoire :
+###Cas où mem_fit_worst optimise la mémoire :
 
 Supposons qu’il ne reste que deux espaces (appelons les A et B) en mémoire , tel que:
 
